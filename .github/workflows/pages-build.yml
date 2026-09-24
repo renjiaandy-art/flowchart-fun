@@ -1,0 +1,29 @@
+name: pages-build
+on:
+  push:
+    branches: [pages-build]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - run: pnpm install --frozen-lockfile
+      - name: Build (no backend env, analytics off)
+        env:
+          CI: "false"
+          REACT_APP_ANALYTICS_ENABLED: "false"
+          REACT_APP_SENTRY_ENABLED: "false"
+          GENERATE_SOURCEMAP: "false"
+        run: pnpm build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flowchart-fun-build
+          path: app/build
+          retention-days: 30
